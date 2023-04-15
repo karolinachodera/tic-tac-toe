@@ -4,6 +4,10 @@ function Square({ value, onSquareClick }) {
   return <button className="square" onClick={onSquareClick}>{value}</button>;
 }
 
+function Sorter({ description, onSorterClick}) {
+  return <button className="sorter" onClick={onSorterClick}>{description}</button>
+}
+
 function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) {
@@ -56,6 +60,8 @@ return (
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [isAscending, setOrder] = useState(true);
+  const [historyOrder, setHistoryOrder] = useState(history.slice());
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
@@ -69,14 +75,28 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
+  function sortMoves() {
+    setOrder(!isAscending);
+  }
+
+  function setButtonDescription(isAscending) {
+    let description;
+    if(isAscending) {
+      description = "Sort moves in descending order";
+    } else {
+      description = "Sort moves in ascending order";
+    }
+    return description;
+  }
+
+  let moves = history.map((squares, move) => {
     let description;
     if (move > 0) {
       description = 'Go to move #' + move;
     } else {
       description = 'Go to game start';
     }
-    
+
     if (move !== history.length - 1) {
       return (
       <li key={move}>
@@ -94,7 +114,8 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <Sorter description={setButtonDescription(isAscending)} onSorterClick={sortMoves} />
+        <ol>{isAscending ? moves : moves.reverse()}</ol>
       </div>
     </div>
   );
