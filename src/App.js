@@ -113,7 +113,12 @@ export default function Game() {
       </li>
      );
     } else {
-      return <p>“You are at move {move}</p>
+      return (
+        <li key={move}>
+          <p>“You are at move {move}</p>
+        </li>
+      )
+      
     }
   });
 
