@@ -1,8 +1,13 @@
 import { useState } from 'react';
 
 function Square({ value, onSquareClick, className }) {
+  if(className) {
   return <button className={`square ${className}`} onClick={onSquareClick} >{value}</button>;
+  } else {
+    return <button className="square" onClick={onSquareClick} >{value}</button>;
 }
+}
+
 function Row({n, winnerData, squares, handleClick}) {
   const row = [];
   let a, b, c;
