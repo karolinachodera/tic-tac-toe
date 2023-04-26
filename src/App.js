@@ -132,8 +132,8 @@ export default function Game() {
 
   let moves = history.map((squares, move) => {
     let description;
-    let row = (Math.floor(indexes[move - 1] / 3)) +1;
-    let col = (indexes[move - 1] % 3) + 1;
+    let row = (Math.floor(indexes[move - 1] / 3)) + 1 || 0;
+    let col = (indexes[move - 1] % 3) + 1 || 0;
     if (move > 0) {
       description = 'Go to move #' + move + ` (${row}, ${col})`;
     } else {
