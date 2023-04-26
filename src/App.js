@@ -2,19 +2,19 @@ import { useState } from 'react';
 
 function Square({ value, onSquareClick, className }) {
   if(className) {
-  return <button className={`square ${className}`} onClick={onSquareClick} >{value}</button>;
+    return <button className={`square ${className}`} onClick={onSquareClick} >{value}</button>;
   } else {
     return <button className="square" onClick={onSquareClick} >{value}</button>;
-}
+  }
 }
 
 function Row({n, winnerData, squares, handleClick}) {
   const row = [];
-  let a, b, c;
-  if (winnerData) { [a, b, c]= winnerData.winnerLine;};
+  let winnerSquareA, winnerSquareB, winnerSquareC;
+  if (winnerData) { [winnerSquareA, winnerSquareB, winnerSquareC]= winnerData.winnerLine;};
 
   for(let i = n; i < n + 3; i++) {
-    if(winnerData && (i === a || i === b || i === c)) {
+    if(winnerData && (i === winnerSquareA || i === winnerSquareB || i === winnerSquareC)) {
       row.push(<Square key={"square-" + i} className="winner" value={squares[i]} onSquareClick={() => handleClick(i)} />);
     } else {
       row.push(<Square key={"square-" + i} value={squares[i]} onSquareClick={() => handleClick(i)} />);
@@ -23,7 +23,7 @@ function Row({n, winnerData, squares, handleClick}) {
   return row;
 }
 
-function Rows({winnerData, squares, handleClick}) {
+function Grid({winnerData, squares, handleClick}) {
   const rows = [];
   for(let i = 0; i <= 6; i += 3) {
     rows.push(
@@ -38,82 +38,56 @@ function Sorter({ description, onSorterClick}) {
   return <button className="sorter" onClick={onSorterClick}>{description}</button>
 }
 
-function Board({ xIsNext, squares, onPlay, currentMove }) {
-  function handleClick(i) {
-    if (squares[i] || calculateWinner(squares)) {
+function Board({ xIsNext, squares, onPlay, currentMoveIndex }) {
+  function handleClick(squareIndex) {
+    if (squares[squareIndex] || calculateWinner(squares)) {
       return;
     }
-    const nextSquares = squares.slice();
+    const nextSquares = [...squares];
 
     if (xIsNext) {
-      nextSquares[i] = "X";
+      nextSquares[squareIndex] = "X";
     } else {
-      nextSquares[i] = "O";
+      nextSquares[squareIndex] = "O";
     }
-    onPlay(nextSquares, i);
+    onPlay(nextSquares, squareIndex);
   }
 
   const winnerData = calculateWinner(squares);
-  let status;
+  let gameStatus;
   if (winnerData && winnerData.winner) {
-    status = "Winner: " + winnerData.winner;
-  } else if (currentMove === 9 && !winnerData) {
-    status = "Draw";
+    gameStatus = "Winner: " + winnerData.winner;
+  } else if (currentMoveIndex === 9 && !winnerData) {
+    gameStatus = "Draw";
   } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
-  }
-  
-  function Row(n) {
-    const row = [];
-    let a, b, c;
-    if (winnerData) { [a, b, c]= winnerData.winnerLine;};
- 
-    for(let i = n; i < n + 3; i++) {
-      if(winnerData && (i === a || i === b || i === c)) {
-        row.push(<Square className="winner" value={squares[i]} onSquareClick={() => handleClick(i)} />);
-      } else {
-        row.push(<Square value={squares[i]} onSquareClick={() => handleClick(i)} />);
-      }      
-    }
-    return row;
-  }
-
-  function Rows() {
-    const rows = [];
-    for(let i = 0; i <= 6; i += 3) {
-      rows.push(
-        <div className="board-row">
-          {Row(i)}
-        </div>)
-    }
-    return rows;
+    gameStatus = "Next player: " + (xIsNext ? "X" : "O");
   }
 
   return (
     <>
-      <div className="status">{status}</div>
-      {Rows()}
+      <div className="status">{gameStatus}</div>
+      <Grid winnerData={winnerData} squares={squares} handleClick={handleClick} />
     </>
   )
 }
 
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const [currentMove, setCurrentMove] = useState(0);
+  const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
   const [isAscending, setOrder] = useState(true);
   const [indexes, setIndexes] = useState([]);
-  const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
+  const xIsNext = currentMoveIndex % 2 === 0;
+  const currentSquares = history[currentMoveIndex];
 
-  function handlePlay(nextSquares, i) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+  function handlePlay(nextSquares, squareIndex) {
+    const nextHistory = [...history.slice(0, currentMoveIndex + 1), nextSquares];
     setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
-    setIndexes(indexes => [...indexes, i]);
+    setCurrentMoveIndex(nextHistory.length - 1);
+    setIndexes(indexes => [...indexes, squareIndex]);
   }
 
   function jumpTo(nextMove) {
-    setCurrentMove(nextMove);
+    setCurrentMoveIndex(nextMove);
   }
 
   function sortMoves() {
@@ -152,14 +126,13 @@ export default function Game() {
           <p>You are at move {move} ({row}, {col}).</p>
         </li>
       )
-      
     }
   });
 
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} currentMove={currentMove} />
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} currentMoveIndex={currentMoveIndex} />
       </div>
       <div className="game-info">
         <Sorter description={setButtonDescription(isAscending)} onSorterClick={sortMoves} />
