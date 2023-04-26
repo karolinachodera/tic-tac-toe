@@ -3,6 +3,31 @@ import { useState } from 'react';
 function Square({ value, onSquareClick, className }) {
   return <button className={`square ${className}`} onClick={onSquareClick} >{value}</button>;
 }
+function Row({n, winnerData, squares, handleClick}) {
+  const row = [];
+  let a, b, c;
+  if (winnerData) { [a, b, c]= winnerData.winnerLine;};
+
+  for(let i = n; i < n + 3; i++) {
+    if(winnerData && (i === a || i === b || i === c)) {
+      row.push(<Square key={"square-" + i} className="winner" value={squares[i]} onSquareClick={() => handleClick(i)} />);
+    } else {
+      row.push(<Square key={"square-" + i} value={squares[i]} onSquareClick={() => handleClick(i)} />);
+    }      
+  }
+  return row;
+}
+
+function Rows({winnerData, squares, handleClick}) {
+  const rows = [];
+  for(let i = 0; i <= 6; i += 3) {
+    rows.push(
+      <div className="board-row">
+        <Row n={i} winnerData={winnerData} squares={squares} handleClick={handleClick} />
+      </div>)
+  }
+  return rows;
+}
 
 function Sorter({ description, onSorterClick}) {
   return <button className="sorter" onClick={onSorterClick}>{description}</button>
