@@ -27,8 +27,8 @@ function Rows({winnerData, squares, handleClick}) {
   const rows = [];
   for(let i = 0; i <= 6; i += 3) {
     rows.push(
-      <div className="board-row">
-        <Row n={i} winnerData={winnerData} squares={squares} handleClick={handleClick} />
+      <div className="board-row" key={"row-" + i}>
+        <Row key={"row-" + i} n={i} winnerData={winnerData} squares={squares} handleClick={handleClick} />
       </div>)
   }
   return rows;
